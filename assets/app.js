@@ -296,6 +296,7 @@ const pageView=document.body.dataset.view||"home";
 
 const state={
   q:"",
+  scenario:"all",
   goal:"all",
   source:"all",
   level:"all",
@@ -394,6 +395,10 @@ function recipeCard(r){
 function filters(){
   return `<div class="toolbar toolbar-wide">
     <input class="input" id="recipe-q" type="search" placeholder="예: 이미지, 논문, 마인드맵, 회의, 코드, 여행..." value="${state.q}">
+    <select class="select" data-filter="scenario">
+      <option value="all">상황 전체</option>
+      ${[...new Set(RECIPES.map(r=>r.scenario))].map(x=>`<option value="${x}" ${state.scenario===x?"selected":""}>${x}</option>`).join("")}
+    </select>
     <select class="select" data-filter="goal">
       <option value="all">목적 전체</option>
       ${["이해","암기","비교","발표","실행","의사결정","콘텐츠","검토","계획","브레인스토밍","검증","온보딩","쉬운 설명","피치","퍼블리시","퀴즈"].map(x=>`<option value="${x}" ${state.goal===x?"selected":""}>${x}</option>`).join("")}
@@ -421,7 +426,7 @@ function filteredRecipes(){
     const stepOK=state.steps==="all"||(state.steps==="1-2"&&count<=2)||(state.steps==="3-4"&&count>=3&&count<=4)||(state.steps==="5-6"&&count>=5);
     const sourceId=r.path[0]||"";
     const hay=[r.title,r.desc,r.scenario,r.goal,r.outcome,...r.path.filter(Boolean).map(label)].join(" ").toLowerCase();
-    return (!q||hay.includes(q))&&(state.goal==="all"||r.goal===state.goal)&&(state.source==="all"||sourceId===state.source)&&(state.level==="all"||r.level===state.level)&&stepOK;
+    return (!q||hay.includes(q))&&(state.scenario==="all"||r.scenario===state.scenario)&&(state.goal==="all"||r.goal===state.goal)&&(state.source==="all"||sourceId===state.source)&&(state.level==="all"||r.level===state.level)&&stepOK;
   });
 }
 function visualMock(kind){
@@ -481,7 +486,7 @@ function visualWorkspace({compact=false}={}){
 function renderHome(){
   const groups=[...new Set(RECIPES.map(r=>r.scenario))];
   const list=filteredRecipes();
-  const filtersActive=Boolean(state.q)||state.goal!=="all"||state.source!=="all"||state.level!=="all"||state.steps!=="all";
+  const filtersActive=Boolean(state.q)||state.scenario!=="all"||state.goal!=="all"||state.source!=="all"||state.level!=="all"||state.steps!=="all";
   const shownGroups=filtersActive?groups:groups.slice(0,8);
   return `
     <section class="wrap image-hero">
