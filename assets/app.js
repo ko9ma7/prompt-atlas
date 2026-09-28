@@ -424,35 +424,90 @@ function filteredRecipes(){
     return (!q||hay.includes(q))&&(state.goal==="all"||r.goal===state.goal)&&(state.source==="all"||sourceId===state.source)&&(state.level==="all"||r.level===state.level)&&stepOK;
   });
 }
+function visualMock(kind){
+  if(kind==="map") return '<div class="mock-node center"></div><div class="mock-line l1"></div><div class="mock-line l2"></div><div class="mock-node n1"></div><div class="mock-node n2"></div><div class="mock-node n3"></div>';
+  if(kind==="flow") return '<div class="mock-box b1"></div><div class="mock-arrow a1"></div><div class="mock-box b2"></div><div class="mock-arrow a2"></div><div class="mock-box b3"></div>';
+  if(kind==="timeline") return '<div class="mock-timeline"></div><i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><i class="dot d4"></i>';
+  if(kind==="cards") return '<div class="mock-grid"><i></i><i></i><i></i><i></i></div>';
+  if(kind==="dashboard") return '<div class="mock-kpi"></div><div class="mock-bars"><i></i><i></i><i></i><i></i></div>';
+  if(kind==="compare") return '<div class="mock-col c1"></div><div class="mock-vs">VS</div><div class="mock-col c2"></div>';
+  if(kind==="poster") return '<div class="mock-title"></div><div class="mock-circle"></div><div class="mock-caption"></div>';
+  if(kind==="comic"||kind==="story") return '<div class="mock-panels"><i></i><i></i><i></i></div>';
+  if(kind==="annotated") return '<div class="mock-photo"></div><i class="pin p1">1</i><i class="pin p2">2</i><i class="pin p3">3</i>';
+  if(kind==="sketch") return '<div class="mock-scribble"></div><div class="mock-note nA"></div><div class="mock-note nB"></div>';
+  if(kind==="info") return '<div class="mock-donut"></div><div class="mock-bars horizontal"><i></i><i></i><i></i></div>';
+  if(kind==="framework") return '<div class="mock-ring r1"></div><div class="mock-ring r2"></div><div class="mock-ring r3"></div>';
+  if(kind==="whiteboard") return '<div class="sticky s1"></div><div class="sticky s2"></div><div class="sticky s3"></div><div class="mock-arrow wa"></div>';
+  return '<div class="mock-doc"><i></i><i></i><i></i><i></i></div>';
+}
+function visualCard(v,{compact=false}={}){
+  const selected=state.visual.selected.includes(v[0]);
+  return `<button class="visual-card ${selected?"selected":""} ${compact?"compact":""}" data-visual="${v[0]}" type="button">
+    <div class="visual-thumb kind-${v[3]}">${visualMock(v[3])}</div>
+    <strong>${v[1]}</strong>
+    <span>${v[2]}</span>
+  </button>`;
+}
+function visualWorkspace({compact=false}={}){
+  const selected=VISUAL_OUTPUTS.filter(v=>state.visual.selected.includes(v[0]));
+  const cards=(compact?VISUAL_OUTPUTS.slice(0,8):VISUAL_OUTPUTS).map(v=>visualCard(v,{compact})).join("");
+  const preview=state.visual.preview
+    ? `<img src="${state.visual.preview}" alt="업로드한 원본 미리보기">`
+    : '<div class="drop-placeholder"><div class="sample-cover"><span>BOOK</span><b>YOUR<br>IMAGE</b><small>사진 · 표지 · 캡처 · 노트</small></div></div>';
+  return `<div class="image-first ${compact?"compact":""}">
+    <section class="source-zone">
+      <div class="source-zone-head"><div><div class="kicker">1 · INPUT</div><h2>이미지에서 시작</h2></div><span class="badge muted">브라우저 안에서 미리보기</span></div>
+      <label class="dropzone" id="dropzone" for="source-file">
+        <input id="source-file" type="file" accept="image/*,.pdf" hidden>
+        <div class="upload-preview">${preview}</div>
+        <div class="upload-copy">
+          <strong>${state.visual.fileName||"이미지·책 표지·스크린샷을 올리세요"}</strong>
+          <span>클릭하거나 파일을 끌어놓기 · 이미지와 PDF 지원</span>
+        </div>
+      </label>
+      ${state.visual.fileName?'<button class="small-btn" id="clear-source">원본 지우기</button>':""}
+    </section>
+    <section class="visual-zone">
+      <div class="source-zone-head"><div><div class="kicker">2 · OUTPUT</div><h2>원하는 결과를 여러 개 선택</h2></div><span class="badge">${selected.length}개 선택</span></div>
+      <div class="visual-grid">${cards}</div>
+      ${compact?'<a class="small-btn visual-more" href="./visuals.html">24개 결과 형식 전체 보기 →</a>':""}
+    </section>
+    <section class="visual-result">
+      <div><div class="kicker">3 · PROMPT</div><h2>${selected.length?selected.map(v=>v[1]).join(" + "):"결과 형식을 선택하세요"}</h2><p>모든 단계를 채울 필요가 없습니다. 이미지 → 스케치노트처럼 2단계만 써도 되고, 여러 결과물을 한 번에 선택해도 됩니다.</p></div>
+      <div class="visual-actions"><button class="btn primary" id="copy-visual-prompt">이미지 작업 프롬프트 복사</button><a class="btn secondary" href="./builder.html">세부 조합 열기</a></div>
+    </section>
+  </div>`;
+}
 function renderHome(){
   const groups=[...new Set(RECIPES.map(r=>r.scenario))];
   const list=filteredRecipes();
+  const shownGroups=groups.slice(0,8);
   return `
-    <section class="wrap hero">
-      <div>
-        <div class="kicker">Source × Extract × Structure × Visualize × Use × Package</div>
-        <h1>자료 하나를 넣고,<br><em>결과의 조합을 설계하세요.</em></h1>
-        <p>책, 논문, 강의, 회의록, 기사, 인터뷰에서 무엇을 뽑고 어떻게 구조화하며 어떤 형태로 보여줄지까지 한 번에 설계합니다. 현재 UI 자체도 여러 디자인 스타일로 즉시 바꿔 비교할 수 있습니다.</p>
-        <div class="cta-row"><a class="btn primary" href="./builder.html">직접 조합하기</a><a class="btn secondary" href="./styles.html">79개 스타일 보기</a></div>
+    <section class="wrap image-hero">
+      <div class="image-hero-copy">
+        <div class="kicker">Image First · Visual Knowledge Workflow</div>
+        <h1>이미지를 올리고,<br><em>어떻게 보일지 고르세요.</em></h1>
+        <p>처음 아이디어처럼 책 표지, 페이지 사진, 스크린샷, 손필기에서 시작합니다. 마인드맵 하나만 만들 수도 있고, 스케치노트 + 인포그래픽 + 치트시트처럼 여러 결과를 동시에 설계할 수도 있습니다.</p>
       </div>
-      <aside class="hero-preview">
-        <span class="badge">추천 조합 · 독서</span>
-        <h2>책 한 권을 한 장으로</h2>
-        <div class="flow">
-          ${["책 / PDF","핵심 아이디어 추출","마인드맵 구조","스케치노트 표현","치트시트 패키지"].map((x,i)=>`<div class="flow-item"><span class="flow-no">${i+1}</span>${x}</div>`).join("")}
-        </div>
-      </aside>
+      ${visualWorkspace({compact:true})}
     </section>
-    <section class="wrap section">
-      <div class="section-head"><div><div class="kicker">Situation Explorer</div><h2>상황에서 시작하세요</h2></div><p>같은 원본도 목적에 따라 구조와 최종 결과가 달라집니다.</p></div>
+    <section class="wrap section situation-start">
+      <div class="section-head"><div><div class="kicker">Situation Explorer</div><h2>${RECIPES.length}개 상황 레시피에서 시작</h2></div><p>6단계를 전부 채우는 방식만 제공하지 않습니다. 1–2단계 빠른 작업, 3–4단계 실용 조합, 5–6단계 완성형을 함께 탐색할 수 있습니다.</p></div>
       ${filters()}
-      ${groups.map(g=>{const rs=list.filter(r=>r.scenario===g);return rs.length?`<div style="margin:28px 0"><div class="section-head"><h2 style="font-size:20px">${g} <span class="badge muted">${rs.length}</span></h2></div><div class="grid">${rs.map(recipeCard).join("")}</div></div>`:""}).join("")||'<div class="empty">조건에 맞는 조합이 없습니다.</div>'}
+      ${shownGroups.map(g=>{const rs=list.filter(r=>r.scenario===g).slice(0,6);return rs.length?`<div class="scenario-group"><div class="section-head"><h2 style="font-size:20px">${g} <span class="badge muted">${list.filter(r=>r.scenario===g).length}</span></h2></div><div class="grid">${rs.map(recipeCard).join("")}</div></div>`:""}).join("")||'<div class="empty">조건에 맞는 조합이 없습니다.</div>'}
+      <div class="cta-row"><a class="btn primary" href="./recipes.html">전체 레시피 보기</a><a class="btn secondary" href="./visuals.html">이미지 결과 형식 전체 보기</a></div>
     </section>`;
 }
 function renderRecipes(){
   const list=filteredRecipes();
-  return `<section class="wrap page-head"><div class="kicker">Recipe Library</div><h1>완성 레시피</h1><p>원본부터 최종 패키지까지 한 번에 비교하고, 원하는 조합을 빌더로 바로 가져갈 수 있습니다.</p></section>
-    <section class="wrap section">${filters()}<div class="grid">${list.length?list.map(recipeCard).join(""):'<div class="empty">조건에 맞는 레시피가 없습니다.</div>'}</div></section>`;
+  const quick=RECIPES.filter(r=>activeSteps(r.path).length<=2).length;
+  const mid=RECIPES.filter(r=>{const n=activeSteps(r.path).length;return n>=3&&n<=4}).length;
+  const full=RECIPES.filter(r=>activeSteps(r.path).length>=5).length;
+  return `<section class="wrap page-head"><div class="kicker">Recipe Library</div><h1>${RECIPES.length}개 상황별 조합</h1><p>완성형 파이프라인뿐 아니라 중간 단계를 생략한 짧은 조합까지 함께 제공합니다. 상황, 목적, 원본, 단계 수, 난이도로 좁혀보세요.</p></section>
+    <section class="wrap section">
+      <div class="stats"><div class="stat"><b>${RECIPES.length}</b><span>전체 레시피</span></div><div class="stat"><b>${quick}</b><span>1–2단계 빠른 작업</span></div><div class="stat"><b>${mid}</b><span>3–4단계 조합</span></div><div class="stat"><b>${full}</b><span>5–6단계 완성형</span></div></div>
+      ${filters()}<div class="grid">${list.length?list.map(recipeCard).join(""):'<div class="empty">조건에 맞는 레시피가 없습니다.</div>'}</div>
+    </section>`;
 }
 function renderPipeline(){
   return `<section class="wrap page-head"><div class="kicker">Pipeline Map</div><h1>6단계 조합 지도</h1><p>어떤 옵션이 어느 단계에 속하는지 전체 구조를 한눈에 봅니다. 항목을 클릭하면 조합 빌더에 저장됩니다.</p></section>
@@ -465,11 +520,30 @@ function renderMatrix(){
 }
 function renderBuilder(){
   const path=STAGES.map(s=>state.builder[s.id]);
-  return `<section class="wrap page-head"><div class="kicker">Combination Builder</div><h1>나만의 결과 흐름 만들기</h1><p>여섯 단계에서 하나씩 선택하면 바로 복사해서 쓸 수 있는 최종 프롬프트를 생성합니다.</p></section>
-    <section class="wrap section"><div class="builder">
-      <div class="panel">${STAGES.map(s=>`<div class="builder-row"><label>${s.label} · ${s.en}</label><select data-build="${s.id}">${BLOCKS[s.id].map(([id,name])=>`<option value="${id}" ${state.builder[s.id]===id?"selected":""}>${name}</option>`).join("")}</select></div>`).join("")}</div>
-      <div class="panel"><div class="kicker">Final Prompt</div><h2 style="font-size:19px">${path.map(label).join(" → ")}</h2><div class="prompt-box">${escapeHTML(promptFor(path))}</div><div class="cta-row"><button class="btn primary" id="copy-builder">프롬프트 복사</button><button class="btn secondary" id="copy-share">조합 링크 복사</button></div></div>
-    </div></section>`;
+  const active=activeSteps(path);
+  return `<section class="wrap page-head"><div class="kicker">Flexible Combination Builder</div><h1>필요한 단계만 골라 연결하세요</h1><p>원본부터 패키지까지 모두 선택할 필요가 없습니다. 각 단계의 <strong>사용 안 함</strong>을 선택하면 해당 단계는 프롬프트에서 완전히 빠집니다.</p></section>
+    <section class="wrap section">
+      <div class="builder-modebar">
+        <button class="small-btn" data-preset="quick">빠른 2단계</button>
+        <button class="small-btn" data-preset="visual">이미지 시각화</button>
+        <button class="small-btn" data-preset="study">학습 4단계</button>
+        <button class="small-btn" data-preset="full">완성형 6단계</button>
+        <button class="small-btn" data-preset="clear">모두 비우기</button>
+        <span class="badge">${active.length}단계 사용 중</span>
+      </div>
+      <div class="builder">
+        <div class="panel">${STAGES.map(s=>`<div class="builder-row ${state.builder[s.id]?"":"disabled-stage"}"><label>${s.label} · ${s.en}<small>${state.builder[s.id]?"사용":"생략"}</small></label><select data-build="${s.id}"><option value="" ${!state.builder[s.id]?"selected":""}>— 사용 안 함 —</option>${BLOCKS[s.id].map(([id,name])=>`<option value="${id}" ${state.builder[s.id]===id?"selected":""}>${name}</option>`).join("")}</select></div>`).join("")}</div>
+        <div class="panel"><div class="kicker">Final Prompt · ${active.length} steps</div><h2 style="font-size:19px">${active.length?active.map(x=>x.label).join(" → "):"선택된 단계 없음"}</h2><div class="prompt-box">${escapeHTML(promptFor(path))}</div><div class="cta-row"><button class="btn primary" id="copy-builder" ${active.length?"":"disabled"}>프롬프트 복사</button><button class="btn secondary" id="copy-share">조합 링크 복사</button></div></div>
+      </div>
+    </section>`;
+}
+function renderVisuals(){
+  return `<section class="wrap page-head"><div class="kicker">Visual Output Lab</div><h1>이미지 한 장에서 24가지 결과로</h1><p>마인드맵, 스케치노트, 인포그래픽처럼 원래 원하셨던 이미지 중심 사용법을 가장 앞에 두었습니다. 여러 결과를 동시에 선택할 수 있습니다.</p></section>
+    <section class="wrap section">${visualWorkspace({compact:false})}
+      <div class="panel visual-notes"><h2>조합 예시</h2><div class="visual-example-list">
+        <span>이미지 → 스케치노트</span><span>책 표지 → 핵심 아이디어 → 마인드맵</span><span>스크린샷 → 페인포인트 → 주석 이미지</span><span>표 → 수치 → 차트</span><span>이미지 → 인포그래픽 + 포스터 + 카드</span><span>노트 사진 → 개념맵 → 학습 시트</span>
+      </div></div>
+    </section>`;
 }
 function renderStyles(){
   const q=state.styleQ.trim().toLowerCase();
