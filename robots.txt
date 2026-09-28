@@ -1,0 +1,1 @@
+User-agent: *\nAllow: /\nSitemap: https://ko9ma7.github.io/prompt-atlas/sitemap.xml\n
