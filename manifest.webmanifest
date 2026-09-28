@@ -1,1 +1,25 @@
-{"name":"Prompt Atlas — AI 결과 조합 사전","short_name":"Prompt Atlas","description":"상황별 AI 결과 조합을 탐색하고 직접 프롬프트를 만드는 웹서비스","start_url":"./","scope":"./","display":"standalone","background_color":"#f6f7fb","theme_color":"#635bff","lang":"ko","icons":[]}
+{
+  "name": "Prompt Atlas — AI 결과 조합 사전",
+  "short_name": "Prompt Atlas",
+  "description": "상황별 AI 결과 조합을 탐색하고 직접 프롬프트를 만드는 웹서비스",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#635bff",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
