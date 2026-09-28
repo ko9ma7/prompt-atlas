@@ -289,7 +289,8 @@ function familyFor(style){
 }
 
 const LABEL_CACHE=Object.fromEntries(Object.values(BLOCKS).flat().map(([id,name])=>[id,name]));
-const label=id=>LABEL_CACHE[id]||id;
+const label=id=>id?(LABEL_CACHE[id]||id):"";
+const activeSteps=path=>path.map((id,i)=>id?{id,stage:STAGES[i],label:label(id)}:null).filter(Boolean);
 const safeJSON=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key)??"null")??fallback}catch{return fallback}};
 const pageView=document.body.dataset.view||"home";
 
@@ -298,11 +299,18 @@ const state={
   goal:"all",
   source:"all",
   level:"all",
+  steps:"all",
   styleQ:"",
   styleStatus:"all",
   fav:safeJSON("pa-fav",[]),
   style:localStorage.getItem("pa-style")||"minimalism-and-swiss-style",
-  builder:safeJSON("pa-builder",{source:"book",extract:"keyideas",structure:"mindmap",visualize:"sketch",use:"teach",package:"cheatsheet"})
+  builder:safeJSON("pa-builder",{source:"book",extract:"keyideas",structure:"mindmap",visualize:"sketch",use:"",package:"visualpack"}),
+  visual:{
+    fileName:"",
+    fileType:"",
+    preview:"",
+    selected:safeJSON("pa-visual-selected",["mindmap","sketchnote","infographic"])
+  }
 };
 
 function currentStyle(){
@@ -333,27 +341,49 @@ async function copyText(text){
   toast("복사했습니다.");
 }
 function promptFor(path){
-  const lines=path.map((id,i)=>`[${i+1}] ${STAGES[i].label} — ${label(id)}`).join("\n");
-  return `다음 자료를 아래 흐름으로 처리해줘.
+  const active=activeSteps(path);
+  if(!active.length) return "원하는 작업을 한 가지 이상 선택해줘.";
+  const lines=active.map((item,i)=>`[${i+1}] ${item.stage.label} — ${item.label}`).join("\n");
+  return `다음 자료를 아래 선택된 단계만 사용해서 처리해줘.
 
 ${lines}
 
-각 단계마다 먼저 중간 결과를 짧게 정리한 뒤 다음 단계로 진행해.
-원본에 없는 사실은 임의로 만들지 말고, 사실·해석·추론을 구분해.
-최종 결과는 바로 사용할 수 있는 완성형으로 작성해.
-필요하면 표, 계층 구조, 체크리스트를 사용하되 중복은 줄여줘.`;
+선택되지 않은 단계는 억지로 추가하지 마.
+${active.length>1?"각 단계의 결과가 다음 선택 단계로 자연스럽게 이어지도록 처리해.":"이 한 가지 목적에 집중해."}
+원본에 없는 사실은 임의로 만들지 말고 사실·해석·추론을 구분해.
+최종 결과는 바로 사용할 수 있는 완성형으로 작성해.`;
+}
+function visualPrompt(){
+  const selected=VISUAL_OUTPUTS.filter(v=>state.visual.selected.includes(v[0]));
+  const fileLine=state.visual.fileName?`업로드한 파일: ${state.visual.fileName}`:"업로드한 이미지·문서의 내용을 기준으로 작업해.";
+  if(!selected.length) return `${fileLine}\n원본의 핵심을 시각적으로 가장 적합한 한 가지 형식으로 정리해줘.`;
+  return `${fileLine}
+
+먼저 원본에서 확인 가능한 핵심 내용과 구조를 파악해.
+그 다음 아래 결과물을 각각 만들어줘.
+
+${selected.map((v,i)=>`[${i+1}] ${v[1]} — ${v[2]}`).join("\n")}
+
+공통 조건:
+- 원본에 없는 사실을 임의로 만들지 마.
+- 한국어 텍스트는 짧고 선명하게 써.
+- 핵심어, 도형, 연결선, 계층을 이용해 한눈에 이해되게 구성해.
+- 각 결과물은 서로 복제하지 말고 형식의 장점을 살려 다르게 설계해.
+- 이미지 생성이 가능한 환경이라면 실제 시각 결과물로 만들고, 그렇지 않으면 바로 이미지 생성에 사용할 수 있는 상세 프롬프트를 함께 제공해.`;
 }
 function recipeCard(r){
   const fav=state.fav.includes(r.id);
-  const path=r.path.map((x,i)=>`<span>${label(x)}</span>${i<r.path.length-1?'<span class="arrow">→</span>':""}`).join("");
+  const active=activeSteps(r.path);
+  const path=active.map((item,i)=>`<span>${item.label}</span>${i<active.length-1?'<span class="arrow">→</span>':""}`).join("");
   return `<article class="card">
     <div class="card-top">
       <span class="badge">${r.goal}</span><span class="badge muted">${r.level}</span>
+      <span class="badge muted">${active.length}단계</span>
       <button class="fav ${fav?"on":""}" data-fav="${r.id}" aria-label="즐겨찾기">${fav?"★":"☆"}</button>
     </div>
     <h3>${r.title}</h3>
     <p>${r.desc}</p>
-    <div class="path">${path}</div>
+    <div class="path">${path||'<span>직접 작업</span>'}</div>
     <div class="outcome"><strong>최종 결과</strong><br>${r.outcome}</div>
     <div class="card-actions">
       <button class="small-btn primary" data-load="${r.id}">이 조합 사용</button>
@@ -362,15 +392,21 @@ function recipeCard(r){
   </article>`;
 }
 function filters(){
-  return `<div class="toolbar">
-    <input class="input" id="recipe-q" type="search" placeholder="예: 논문, 마인드맵, 시험, 실행계획" value="${state.q}">
+  return `<div class="toolbar toolbar-wide">
+    <input class="input" id="recipe-q" type="search" placeholder="예: 이미지, 논문, 마인드맵, 회의, 코드, 여행..." value="${state.q}">
     <select class="select" data-filter="goal">
       <option value="all">목적 전체</option>
-      ${["이해","암기","비교","발표","실행","의사결정","콘텐츠"].map(x=>`<option value="${x}" ${state.goal===x?"selected":""}>${x}</option>`).join("")}
+      ${["이해","암기","비교","발표","실행","의사결정","콘텐츠","검토","계획","브레인스토밍","검증","온보딩","쉬운 설명","피치","퍼블리시","퀴즈"].map(x=>`<option value="${x}" ${state.goal===x?"selected":""}>${x}</option>`).join("")}
     </select>
     <select class="select" data-filter="source">
       <option value="all">원본 전체</option>
       ${BLOCKS.source.map(([id,name])=>`<option value="${id}" ${state.source===id?"selected":""}>${name}</option>`).join("")}
+    </select>
+    <select class="select" data-filter="steps">
+      <option value="all">단계 수 전체</option>
+      <option value="1-2" ${state.steps==="1-2"?"selected":""}>1–2단계 빠른 작업</option>
+      <option value="3-4" ${state.steps==="3-4"?"selected":""}>3–4단계 조합</option>
+      <option value="5-6" ${state.steps==="5-6"?"selected":""}>5–6단계 완성형</option>
     </select>
     <select class="select" data-filter="level">
       <option value="all">난이도 전체</option>
@@ -381,8 +417,11 @@ function filters(){
 function filteredRecipes(){
   const q=state.q.trim().toLowerCase();
   return RECIPES.filter(r=>{
-    const hay=[r.title,r.desc,r.scenario,r.goal,r.outcome,...r.path.map(label)].join(" ").toLowerCase();
-    return (!q||hay.includes(q))&&(state.goal==="all"||r.goal===state.goal)&&(state.source==="all"||r.path[0]===state.source)&&(state.level==="all"||r.level===state.level);
+    const count=activeSteps(r.path).length;
+    const stepOK=state.steps==="all"||(state.steps==="1-2"&&count<=2)||(state.steps==="3-4"&&count>=3&&count<=4)||(state.steps==="5-6"&&count>=5);
+    const sourceId=r.path[0]||"";
+    const hay=[r.title,r.desc,r.scenario,r.goal,r.outcome,...r.path.filter(Boolean).map(label)].join(" ").toLowerCase();
+    return (!q||hay.includes(q))&&(state.goal==="all"||r.goal===state.goal)&&(state.source==="all"||sourceId===state.source)&&(state.level==="all"||r.level===state.level)&&stepOK;
   });
 }
 function renderHome(){
