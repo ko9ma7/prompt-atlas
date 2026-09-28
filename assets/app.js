@@ -580,6 +580,7 @@ function renderPage(){
   if(pageView==="pipeline") host.innerHTML=renderPipeline();
   if(pageView==="matrix") host.innerHTML=renderMatrix();
   if(pageView==="builder") host.innerHTML=renderBuilder();
+  if(pageView==="visuals") host.innerHTML=renderVisuals();
   if(pageView==="styles") host.innerHTML=renderStyles();
   setNav();
   renderStyleDock();
@@ -613,6 +614,29 @@ document.addEventListener("click",event=>{
   const block=event.target.closest("[data-block]");if(block){const [stage,id]=block.dataset.block.split(":");state.builder[stage]=id;saveBuilder();renderPage();return}
   const mx=event.target.closest("[data-matrix]");if(mx){const [structure,visualize]=mx.dataset.matrix.split(":");state.builder.structure=structure;state.builder.visualize=visualize;saveBuilder();location.href="./builder.html";return}
   const apply=event.target.closest("[data-apply-style]");if(apply){applyStyle(apply.dataset.applyStyle);renderPage();toast("스타일을 적용했습니다.");return}
+  const visual=event.target.closest("[data-visual]");
+  if(visual){
+    const id=visual.dataset.visual;
+    state.visual.selected=state.visual.selected.includes(id)?state.visual.selected.filter(x=>x!==id):[...state.visual.selected,id];
+    localStorage.setItem("pa-visual-selected",JSON.stringify(state.visual.selected));
+    renderPage();return;
+  }
+  const preset=event.target.closest("[data-preset]");
+  if(preset){
+    const presets={
+      quick:{source:"book",extract:"summary",structure:"",visualize:"",use:"",package:"brief"},
+      visual:{source:"image",extract:"keyideas",structure:"mindmap",visualize:"sketch",use:"",package:"visualpack"},
+      study:{source:"lecture",extract:"keyideas",structure:"concept",visualize:"",use:"quiz",package:"studykit"},
+      full:{source:"book",extract:"keyideas",structure:"mindmap",visualize:"sketch",use:"teach",package:"cheatsheet"},
+      clear:{source:"",extract:"",structure:"",visualize:"",use:"",package:""}
+    };
+    state.builder={...presets[preset.dataset.preset]};saveBuilder();renderPage();return;
+  }
+  if(event.target.id==="copy-visual-prompt"){copyText(visualPrompt());return}
+  if(event.target.id==="clear-source"){
+    state.visual.fileName="";state.visual.fileType="";state.visual.preview="";
+    renderPage();return;
+  }
   if(event.target.id==="copy-builder"){copyText(promptFor(STAGES.map(s=>state.builder[s.id])));return}
   if(event.target.id==="copy-share"){
     const url=new URL(location.href);url.searchParams.set("combo",STAGES.map(s=>state.builder[s.id]).join("."));url.searchParams.set("style",state.style);copyText(url.toString());return;
@@ -640,18 +664,43 @@ document.addEventListener("input",event=>{
     rerenderKeepingFocus("style-q",state.styleQ,event.target.selectionStart);
   }
 });
+function acceptVisualFile(file){
+  if(!file)return;
+  state.visual.fileName=file.name;
+  state.visual.fileType=file.type||"";
+  if(file.type&&file.type.startsWith("image/")){
+    const reader=new FileReader();
+    reader.onload=()=>{state.visual.preview=String(reader.result||"");renderPage();};
+    reader.readAsDataURL(file);
+  }else{
+    state.visual.preview="";renderPage();
+  }
+}
 document.addEventListener("change",event=>{
   if(event.target.dataset.filter){state[event.target.dataset.filter]=event.target.value;renderPage();return}
   if(event.target.dataset.build){state.builder[event.target.dataset.build]=event.target.value;saveBuilder();renderPage();return}
   if(event.target.id==="style-status"){state.styleStatus=event.target.value;renderPage();return}
   if(event.target.id==="global-style-picker"){applyStyle(event.target.value);if(pageView==="styles")renderPage();return}
+  if(event.target.id==="source-file"){acceptVisualFile(event.target.files?.[0]);return}
+});
+document.addEventListener("dragover",event=>{
+  if(event.target.closest("#dropzone")){event.preventDefault();event.target.closest("#dropzone").classList.add("dragging");}
+});
+document.addEventListener("dragleave",event=>{
+  const zone=event.target.closest("#dropzone");if(zone)zone.classList.remove("dragging");
+});
+document.addEventListener("drop",event=>{
+  const zone=event.target.closest("#dropzone");if(!zone)return;
+  event.preventDefault();zone.classList.remove("dragging");acceptVisualFile(event.dataTransfer?.files?.[0]);
 });
 
 const params=new URLSearchParams(location.search);
 const combo=params.get("combo");
 if(combo){
   const ids=combo.split(".");
-  if(ids.length===STAGES.length) STAGES.forEach((s,i)=>{if(BLOCKS[s.id].some(([id])=>id===ids[i])) state.builder[s.id]=ids[i]});
+  if(ids.length===STAGES.length) STAGES.forEach((s,i)=>{
+    if(ids[i]===""||BLOCKS[s.id].some(([id])=>id===ids[i])) state.builder[s.id]=ids[i];
+  });
 }
 const requestedStyle=params.get("style");
 if(requestedStyle&&STYLE_CATALOG.some(s=>s.id===requestedStyle)) state.style=requestedStyle;
