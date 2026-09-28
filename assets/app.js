@@ -8,40 +8,155 @@ const STAGES=[
 ];
 
 const BLOCKS={
-  source:[["book","책 / PDF"],["paper","논문"],["lecture","강의 / 영상"],["meeting","회의록"],["article","기사 / 리포트"],["interview","인터뷰"],["manual","매뉴얼"],["data","데이터 / 표"]],
-  extract:[["summary","요약"],["keyideas","핵심 아이디어"],["insights","인사이트"],["evidence","근거 / 데이터"],["quotes","핵심 문장"],["questions","질문거리"],["actions","행동 항목"],["terms","용어"]],
-  structure:[["mindmap","마인드맵"],["concept","개념맵"],["timeline","타임라인"],["framework","프레임워크"],["flow","플로차트"],["compare","비교표"],["outline","아웃라인"],["matrix","매트릭스"]],
-  visualize:[["sketch","스케치노트"],["info","인포그래픽"],["diagram","다이어그램"],["onepage","원페이지"],["poster","포스터"],["cards","카드"],["table","표"],["story","스토리보드"]],
-  use:[["learn","이해"],["remember","암기"],["quiz","퀴즈"],["teach","설명 / Teach-back"],["present","발표"],["decide","의사결정"],["apply","실행"],["create","콘텐츠 제작"]],
-  package:[["studykit","학습 키트"],["brief","브리핑"],["deck","발표자료"],["workbook","워크북"],["playbook","실행 매뉴얼"],["cheatsheet","치트시트"],["report","리포트"],["contentkit","콘텐츠 키트"]]
+  source:[
+    ["book","책 / PDF"],["paper","논문"],["lecture","강의 / 영상"],["meeting","회의록"],
+    ["article","기사 / 리포트"],["interview","인터뷰"],["manual","매뉴얼"],["data","데이터 / 표"],
+    ["image","이미지 / 사진"],["screenshot","스크린샷"],["webpage","웹페이지"],["email","이메일"],
+    ["chat","대화 / 채팅"],["code","코드 / 저장소"],["product","제품 / 서비스"],["notes","메모 / 필기"]
+  ],
+  extract:[
+    ["summary","요약"],["keyideas","핵심 아이디어"],["insights","인사이트"],["evidence","근거 / 데이터"],
+    ["quotes","핵심 문장"],["questions","질문거리"],["actions","행동 항목"],["terms","용어"],
+    ["facts","사실"],["claims","주장"],["risks","리스크"],["decisions","결정사항"],
+    ["painpoints","문제 / 페인포인트"],["requirements","요구사항"],["numbers","수치"],["examples","사례"]
+  ],
+  structure:[
+    ["mindmap","마인드맵"],["concept","개념맵"],["timeline","타임라인"],["framework","프레임워크"],
+    ["flow","플로차트"],["compare","비교표"],["outline","아웃라인"],["matrix","매트릭스"],
+    ["hierarchy","계층도"],["causeeffect","원인-결과"],["journey","여정맵"],["swot","SWOT"],
+    ["decisiontree","의사결정 트리"],["taxonomy","분류체계"],["roadmap","로드맵"],["kanban","칸반 구조"]
+  ],
+  visualize:[
+    ["sketch","스케치노트"],["info","인포그래픽"],["diagram","다이어그램"],["onepage","원페이지"],
+    ["poster","포스터"],["cards","카드"],["table","표"],["story","스토리보드"],
+    ["comic","코믹 / 만화"],["whiteboard","화이트보드"],["dashboard","대시보드"],["chart","차트"],
+    ["annotated","주석 이미지"],["blueprint","블루프린트"],["explainer","설명 그림"],["worksheet","워크시트"]
+  ],
+  use:[
+    ["learn","이해"],["remember","암기"],["quiz","퀴즈"],["teach","설명 / Teach-back"],
+    ["present","발표"],["decide","의사결정"],["apply","실행"],["create","콘텐츠 제작"],
+    ["review","검토"],["plan","계획"],["brainstorm","브레인스토밍"],["verify","검증"],
+    ["onboard","온보딩"],["teachkids","쉬운 설명"],["pitch","피치"],["publish","퍼블리시"]
+  ],
+  package:[
+    ["studykit","학습 키트"],["brief","브리핑"],["deck","발표자료"],["workbook","워크북"],
+    ["playbook","실행 매뉴얼"],["cheatsheet","치트시트"],["report","리포트"],["contentkit","콘텐츠 키트"],
+    ["faq","FAQ"],["checklist","체크리스트"],["template","템플릿"],["handbook","핸드북"],
+    ["course","미니 코스"],["campaign","캠페인 키트"],["dashboardpack","대시보드 팩"],["visualpack","비주얼 팩"]
+  ]
 };
 
 const RECIPES=[
-  ["book-onepage","독서","책 한 권 핵심 한 장","책을 읽고 전체 논리와 핵심 개념을 한눈에 보고 싶을 때","이해","중급",["book","keyideas","mindmap","sketch","teach","cheatsheet"],"핵심 개념 관계가 보이는 시각 학습노트"],
-  ["book-action","독서","자기계발서 실행 전환","읽고 끝내지 않고 실제 행동으로 옮길 때","실행","중급",["book","actions","framework","onepage","apply","playbook"],"원칙 → 행동 → 체크리스트로 이어지는 실행 매뉴얼"],
-  ["book-memory","독서","시험형 독서 노트","책 내용을 오래 기억하고 복습할 때","암기","고급",["book","terms","concept","cards","remember","studykit"],"개념 카드와 복습 루프가 포함된 학습 키트"],
-  ["paper-brief","연구","논문 10분 브리핑","긴 논문을 빠르게 파악해야 할 때","이해","중급",["paper","summary","outline","diagram","present","brief"],"연구 질문·방법·결과·한계를 압축한 브리핑"],
-  ["paper-map","연구","논문 구조 지도","연구 주장과 근거의 연결을 파악할 때","이해","고급",["paper","evidence","concept","diagram","learn","report"],"주장과 근거가 연결된 논문 구조도"],
-  ["paper-compare","연구","복수 논문 비교","여러 논문의 차이와 공통점을 비교할 때","비교","고급",["paper","insights","matrix","table","decide","report"],"연구별 가설·방법·결과·한계 비교표"],
-  ["lecture-kit","학습","강의 복습 패키지","강의 후 시험 대비 자료가 필요할 때","암기","고급",["lecture","keyideas","outline","cards","quiz","studykit"],"요약·암기카드·퀴즈가 묶인 복습 패키지"],
-  ["lecture-teach","학습","강의 Teach-back","배운 내용을 자기 말로 설명하며 확인할 때","이해","중급",["lecture","questions","concept","diagram","teach","workbook"],"설명 질문과 빈칸이 포함된 자기점검 워크북"],
-  ["meeting-action","업무","회의를 실행계획으로","회의록에서 결정과 할 일을 빠르게 정리할 때","실행","중급",["meeting","actions","flow","table","apply","playbook"],"담당자·기한·의존성이 정리된 실행 목록"],
-  ["meeting-brief","업무","회의 1페이지 브리핑","불참자에게 회의 내용을 빠르게 전달할 때","발표","초급",["meeting","summary","outline","onepage","present","brief"],"결정사항과 다음 단계 중심의 1페이지 브리핑"],
-  ["article-check","정보","기사 핵심 주장 점검","긴 기사·리포트의 주장과 근거를 분리할 때","의사결정","중급",["article","evidence","framework","table","decide","brief"],"사실·주장·근거·불확실성을 나눈 판단 자료"],
-  ["trend-map","정보","트렌드 맵","여러 기사에서 반복되는 흐름을 볼 때","이해","중급",["article","insights","mindmap","info","learn","report"],"트렌드·원인·영향을 연결한 시각 리포트"],
-  ["interview-insight","리서치","인터뷰 인사이트 맵","사용자 인터뷰에서 패턴을 찾을 때","의사결정","고급",["interview","insights","framework","cards","decide","report"],"니즈·문제·행동 패턴이 정리된 인사이트 리포트"],
-  ["interview-content","콘텐츠","인터뷰 콘텐츠 키트","인터뷰를 다양한 SNS 콘텐츠로 재가공할 때","콘텐츠","중급",["interview","quotes","outline","story","create","contentkit"],"카드뉴스·숏폼·게시물 아이디어 패키지"],
-  ["manual-cheat","업무","매뉴얼 치트시트","복잡한 업무 절차를 빠르게 참고할 때","실행","중급",["manual","actions","flow","diagram","apply","cheatsheet"],"절차와 예외가 압축된 현장용 치트시트"],
-  ["data-story","데이터","데이터 스토리","표나 수치를 이해하기 쉬운 메시지로 바꿀 때","발표","고급",["data","insights","framework","info","present","deck"],"핵심 수치 → 의미 → 시사점으로 이어지는 발표 구조"],
-  ["data-decision","데이터","의사결정 매트릭스","여러 선택지를 데이터로 비교할 때","의사결정","고급",["data","evidence","matrix","table","decide","report"],"기준·가중치·근거가 분리된 비교 리포트"],
-  ["plan-roadmap","기획","기획안을 로드맵으로","아이디어를 실행 가능한 순서로 바꿀 때","실행","고급",["article","actions","timeline","diagram","apply","playbook"],"단계·마일스톤·리스크가 포함된 실행 로드맵"],
-  ["content-series","콘텐츠","한 자료로 콘텐츠 시리즈","하나의 원본을 여러 포맷으로 확장할 때","콘텐츠","중급",["article","keyideas","outline","story","create","contentkit"],"롱폼·카드·숏폼으로 재사용 가능한 콘텐츠 키트"],
-  ["faq-maker","업무","FAQ 자동 설계","문서에서 자주 묻는 질문 형태로 재구성할 때","이해","초급",["manual","questions","outline","cards","learn","brief"],"질문-답변 중심의 빠른 안내서"],
-  ["timeline-history","학습","역사 타임라인","사건의 시간 흐름과 인과를 이해할 때","이해","중급",["book","summary","timeline","info","learn","cheatsheet"],"시간순 사건과 원인이 연결된 타임라인"],
-  ["compare-products","의사결정","제품 비교 프레임","여러 제품·서비스를 기준별로 비교할 때","의사결정","중급",["article","evidence","compare","table","decide","report"],"기준별 장단점과 근거가 한눈에 보이는 비교표"],
-  ["presentation-fast","발표","10분 발표 만들기","자료를 짧은 발표 흐름으로 재구성할 때","발표","중급",["paper","keyideas","outline","diagram","present","deck"],"오프닝-핵심-근거-결론으로 이어지는 슬라이드 구조"],
-  ["socratic-study","학습","소크라테스식 학습","정답을 바로 보지 않고 질문으로 이해할 때","이해","고급",["book","questions","concept","cards","teach","workbook"],"단계별 질문과 자기설명이 포함된 학습 워크북"]
+  ["image-mindmap","이미지 시작","사진 한 장 → 마인드맵","책 표지, 노트, 화이트보드 사진에서 주제를 읽고 관계를 시각화","이해","초급",["image","keyideas","mindmap","sketch","","visualpack"],"이미지에서 읽은 핵심을 스케치형 마인드맵으로"],
+  ["image-infographic","이미지 시작","이미지 → 인포그래픽","사진이나 캡처의 정보를 한 장짜리 정보 그래픽으로 바꾸기","발표","중급",["image","facts","","info","present","visualpack"],"사실 중심의 한 장 인포그래픽"],
+  ["image-annotate","이미지 시작","스크린샷 주석 분석","화면 캡처 위에 문제점과 개선 포인트를 표시","검토","중급",["screenshot","painpoints","","annotated","review","report"],"주석이 달린 UI/문서 검토 자료"],
+  ["image-comic","이미지 시작","사진 → 설명 만화","한 장의 이미지 속 상황을 순서와 맥락이 있는 만화로 설명","콘텐츠","중급",["image","insights","","comic","create","contentkit"],"설명용 짧은 코믹 시퀀스"],
+  ["image-direct-sketch","이미지 시작","이미지 → 스케치노트 바로 변환","분석 단계 없이 이미지의 내용을 시각 필기로 재구성","이해","초급",["image","","","sketch","",""],"원본 이미지 기반 스케치노트"],
+  ["image-poster","이미지 시작","이미지 → 포스터","한 이미지의 핵심 메시지를 포스터형으로 강조","퍼블리시","초급",["image","keyideas","","poster","publish",""],"공유 가능한 핵심 메시지 포스터"],
+
+  ["book-onepage","독서","책 한 권 핵심 한 장","책 전체 논리와 핵심 개념을 한눈에 보기","이해","중급",["book","keyideas","mindmap","sketch","teach","cheatsheet"],"핵심 개념 관계가 보이는 시각 학습노트"],
+  ["book-summary","독서","책 빠른 요약","구조화나 시각화 없이 핵심만 빠르게 읽기","이해","초급",["book","summary","","","","brief"],"짧은 핵심 요약 브리핑"],
+  ["book-action","독서","자기계발서 실행 전환","읽고 끝내지 않고 실제 행동으로 옮기기","실행","중급",["book","actions","framework","onepage","apply","playbook"],"원칙 → 행동 → 체크리스트 실행 매뉴얼"],
+  ["book-memory","독서","시험형 독서 노트","오래 기억하고 복습할 때","암기","고급",["book","terms","concept","cards","remember","studykit"],"개념 카드와 복습 루프 학습 키트"],
+  ["book-quote-cards","독서","핵심 문장 카드","좋은 문장과 핵심 주장만 카드로 저장","콘텐츠","초급",["book","quotes","","cards","publish","contentkit"],"인용문 중심 카드 세트"],
+  ["book-framework","독서","저자의 사고 프레임","저자의 원칙과 사고방식을 모델로 추출","이해","중급",["book","insights","framework","diagram","",""],"저자의 사고방식 다이어그램"],
+  ["book-history","독서","역사책 타임라인","사건 순서와 인과를 시간축으로 보기","이해","중급",["book","facts","timeline","info","learn","cheatsheet"],"시간순 사건과 원인이 연결된 타임라인"],
+  ["book-kids","독서","어려운 책 쉽게 설명","복잡한 내용을 쉬운 말과 그림으로 설명","쉬운 설명","중급",["book","keyideas","concept","comic","teachkids","workbook"],"쉬운 설명과 그림이 결합된 워크북"],
+
+  ["paper-brief","연구","논문 10분 브리핑","긴 논문을 빠르게 파악","이해","중급",["paper","summary","outline","diagram","present","brief"],"연구 질문·방법·결과·한계 브리핑"],
+  ["paper-map","연구","논문 구조 지도","주장과 근거의 연결을 파악","이해","고급",["paper","evidence","concept","diagram","learn","report"],"주장-근거 연결 구조도"],
+  ["paper-compare","연구","복수 논문 비교","여러 논문의 차이와 공통점 비교","비교","고급",["paper","insights","matrix","table","decide","report"],"가설·방법·결과·한계 비교 리포트"],
+  ["paper-findings","연구","결과만 빠르게 추출","연구 결과와 수치만 필요한 상황","검토","초급",["paper","numbers","","table","review",""],"핵심 수치와 결과표"],
+  ["paper-method","연구","연구방법 플로우","실험/조사 절차를 흐름으로 이해","이해","중급",["paper","facts","flow","diagram","",""],"연구 절차 다이어그램"],
+  ["paper-limitations","연구","한계와 리스크 점검","논문의 한계, 불확실성, 후속 연구 포인트 찾기","검증","고급",["paper","risks","","table","verify","brief"],"한계·불확실성 검토 브리핑"],
+  ["paper-presentation","연구","논문 발표 7장","세미나 발표용으로 압축","발표","중급",["paper","keyideas","outline","diagram","present","deck"],"7장 내외 연구 발표 구성"],
+
+  ["lecture-kit","학습","강의 복습 패키지","강의 후 시험 대비","암기","고급",["lecture","keyideas","outline","cards","quiz","studykit"],"요약·암기카드·퀴즈 복습 패키지"],
+  ["lecture-teach","학습","강의 Teach-back","자기 말로 설명하며 이해 확인","이해","중급",["lecture","questions","concept","diagram","teach","workbook"],"설명 질문과 빈칸 자기점검 워크북"],
+  ["lecture-quiz","학습","강의 → 문제만 만들기","구조화 없이 바로 문제 생성","퀴즈","초급",["lecture","keyideas","","","quiz",""],"핵심 내용 기반 퀴즈"],
+  ["notes-clean","학습","필기 정리","엉킨 메모를 계층형 노트로 정리","이해","초급",["notes","keyideas","hierarchy","","","cheatsheet"],"깔끔한 계층형 필기"],
+  ["notes-mindmap","학습","손필기 → 개념맵","필기 사진이나 메모를 개념 관계로 정리","이해","중급",["notes","terms","concept","sketch","",""],"개념 연결형 시각 노트"],
+  ["exam-cram","학습","시험 직전 치트시트","필수 개념과 자주 틀리는 점만 압축","암기","중급",["notes","terms","outline","onepage","remember","cheatsheet"],"시험 직전 1페이지 요약"],
+  ["flash-only","학습","텍스트 → 암기카드","다른 단계 없이 바로 카드로 만들기","암기","초급",["notes","","","cards","remember",""],"Q/A 암기카드"],
+
+  ["meeting-action","업무","회의를 실행계획으로","결정과 할 일을 빠르게 정리","실행","중급",["meeting","actions","flow","table","apply","playbook"],"담당자·기한·의존성이 정리된 실행 목록"],
+  ["meeting-brief","업무","회의 1페이지 브리핑","불참자에게 빠르게 전달","발표","초급",["meeting","summary","outline","onepage","present","brief"],"결정사항과 다음 단계 1페이지 브리핑"],
+  ["meeting-decisions","업무","결정사항만 추출","회의에서 결론만 필요할 때","의사결정","초급",["meeting","decisions","","table","",""],"결정·보류·담당자 표"],
+  ["meeting-risk","업무","회의 리스크 레이더","논의 속 리스크와 막힘을 찾기","검토","중급",["meeting","risks","matrix","dashboard","review","dashboardpack"],"리스크 우선순위 대시보드"],
+  ["email-actions","업무","이메일 → 할 일","긴 메일 스레드에서 할 일만 추출","실행","초급",["email","actions","","","apply","checklist"],"실행 체크리스트"],
+  ["email-brief","업무","메일 스레드 요약","앞뒤 맥락과 현재 상태만 정리","이해","초급",["email","summary","timeline","","","brief"],"시간순 메일 맥락 브리핑"],
+  ["manual-cheat","업무","매뉴얼 치트시트","복잡한 절차를 빠르게 참고","실행","중급",["manual","actions","flow","diagram","apply","cheatsheet"],"절차와 예외가 압축된 치트시트"],
+  ["manual-onboard","업무","신입 온보딩 핸드북","매뉴얼을 초보자 학습 순서로 재구성","온보딩","고급",["manual","requirements","roadmap","worksheet","onboard","handbook"],"단계형 온보딩 핸드북"],
+
+  ["article-check","정보","기사 핵심 주장 점검","주장과 근거를 분리","의사결정","중급",["article","claims","framework","table","decide","brief"],"사실·주장·근거·불확실성 판단 자료"],
+  ["trend-map","정보","트렌드 맵","여러 기사에서 반복되는 흐름 찾기","이해","중급",["article","insights","mindmap","info","learn","report"],"트렌드·원인·영향 시각 리포트"],
+  ["webpage-summary","정보","웹페이지 한 줄씩 압축","길고 복잡한 페이지를 빠르게 정리","이해","초급",["webpage","summary","outline","","","brief"],"페이지 핵심 아웃라인"],
+  ["fact-only","정보","사실만 추출","해석 없이 확인 가능한 사실만 모으기","검증","초급",["article","facts","","table","verify",""],"사실 목록 및 출처 확인표"],
+  ["interview-insight","리서치","인터뷰 인사이트 맵","사용자 인터뷰 패턴 찾기","의사결정","고급",["interview","insights","framework","cards","decide","report"],"니즈·문제·행동 패턴 인사이트 리포트"],
+  ["interview-pain","리서치","인터뷰 페인포인트","불편과 요구만 빠르게 분리","검토","중급",["interview","painpoints","matrix","","review","brief"],"페인포인트 우선순위 표"],
+  ["interview-journey","리서치","사용자 여정 재구성","인터뷰에서 행동 흐름을 여정맵으로 만들기","이해","고급",["interview","insights","journey","diagram","present","report"],"행동·감정·장벽 사용자 여정맵"],
+
+  ["data-story","데이터","데이터 스토리","수치를 이해하기 쉬운 메시지로 바꾸기","발표","고급",["data","insights","framework","info","present","deck"],"핵심 수치 → 의미 → 시사점 발표 구조"],
+  ["data-decision","데이터","의사결정 매트릭스","여러 선택지를 데이터로 비교","의사결정","고급",["data","evidence","matrix","table","decide","report"],"기준·가중치·근거 비교 리포트"],
+  ["data-chart","데이터","표 → 차트","분석 단계 없이 시각 차트로 변환","발표","초급",["data","numbers","","chart","present",""],"핵심 수치 차트"],
+  ["data-dashboard","데이터","데이터 → 대시보드 설계","지표를 모니터링 화면으로 구성","검토","고급",["data","numbers","hierarchy","dashboard","review","dashboardpack"],"KPI 중심 대시보드 팩"],
+  ["data-anomaly","데이터","이상치 점검","수치에서 이상 신호와 검토 포인트 찾기","검증","고급",["data","risks","","table","verify","report"],"이상치와 확인 항목 리포트"],
+
+  ["plan-roadmap","기획","기획안을 로드맵으로","아이디어를 실행 순서로 바꾸기","실행","고급",["article","actions","roadmap","diagram","plan","playbook"],"마일스톤·리스크 실행 로드맵"],
+  ["idea-framework","기획","아이디어 → 프레임워크","흩어진 아이디어의 구조만 빠르게 잡기","브레인스토밍","중급",["notes","insights","framework","","brainstorm",""],"아이디어 구조 프레임"],
+  ["swot-plan","기획","SWOT → 실행 전략","상황 분석에서 액션까지 연결","계획","중급",["article","facts","swot","table","plan","playbook"],"SWOT 기반 실행전략"],
+  ["decision-tree","기획","선택지 의사결정 트리","조건에 따라 선택 경로를 나누기","의사결정","중급",["notes","requirements","decisiontree","diagram","decide",""],"조건별 선택 경로도"],
+  ["requirement-blueprint","기획","요구사항 블루프린트","요구사항을 구조와 기능으로 시각화","계획","고급",["notes","requirements","hierarchy","blueprint","plan","report"],"요구사항 구조 블루프린트"],
+  ["brainstorm-only","기획","키워드 → 브레인스토밍","정리 단계 없이 아이디어 확장","브레인스토밍","초급",["notes","keyideas","","","brainstorm",""],"확장 아이디어 목록"],
+
+  ["content-series","콘텐츠","한 자료로 콘텐츠 시리즈","원본 하나를 여러 포맷으로 확장","콘텐츠","중급",["article","keyideas","outline","story","create","contentkit"],"롱폼·카드·숏폼 콘텐츠 키트"],
+  ["interview-content","콘텐츠","인터뷰 콘텐츠 키트","인터뷰를 SNS 포맷으로 재가공","콘텐츠","중급",["interview","quotes","outline","story","create","contentkit"],"카드뉴스·숏폼·게시물 아이디어"],
+  ["quote-poster","콘텐츠","핵심 문장 포스터","한 문장만 강하게 시각화","퍼블리시","초급",["notes","quotes","","poster","publish",""],"공유용 문장 포스터"],
+  ["comic-explainer","콘텐츠","개념 설명 만화","복잡한 개념을 장면별로 쉽게 설명","콘텐츠","중급",["article","keyideas","story","comic","create","contentkit"],"장면별 설명 만화"],
+  ["campaign-kit","마케팅","캠페인 메시지 키트","자료를 광고/캠페인 메시지로 재구성","퍼블리시","고급",["article","insights","framework","cards","publish","campaign"],"메시지·카피·카드 캠페인 키트"],
+  ["product-pitch","마케팅","제품 피치 한 장","제품의 가치와 증거를 피치 구조로 압축","피치","중급",["product","keyideas","framework","onepage","pitch","deck"],"한 장 가치제안 + 발표 흐름"],
+  ["review-to-content","마케팅","후기 → 소셜프루프 카드","사용자 후기에서 인용문과 성과를 추출","콘텐츠","중급",["interview","quotes","","cards","publish","contentkit"],"후기 기반 소셜프루프 카드"],
+  ["landing-outline","마케팅","랜딩페이지 구조","제품 자료에서 섹션 구조만 설계","계획","중급",["product","requirements","outline","","plan","template"],"랜딩페이지 섹션 템플릿"],
+
+  ["code-onboard","개발","코드베이스 온보딩","저장소 구조를 신규 개발자에게 설명","온보딩","고급",["code","keyideas","hierarchy","diagram","onboard","handbook"],"아키텍처와 시작점이 보이는 개발자 핸드북"],
+  ["code-flow","개발","코드 실행 흐름","핵심 로직의 호출 흐름을 시각화","이해","고급",["code","facts","flow","diagram","learn",""],"호출/처리 흐름 다이어그램"],
+  ["code-review","개발","코드 검토 체크리스트","위험과 요구사항 중심으로 리뷰","검토","고급",["code","risks","","table","review","checklist"],"리뷰 체크리스트"],
+  ["bug-map","개발","버그 원인-결과 지도","증상과 가능한 원인을 연결","검증","고급",["code","painpoints","causeeffect","diagram","verify","report"],"원인 가설과 검증 순서도"],
+  ["product-requirements","제품","제품 요구사항 맵","요구사항을 기능과 사용자 가치로 묶기","계획","고급",["product","requirements","taxonomy","diagram","plan","report"],"기능 분류와 우선순위 요구사항 맵"],
+  ["ui-screenshot-review","디자인","UI 스크린샷 리뷰","스크린샷만으로 정보 구조와 사용성 개선점 찾기","검토","중급",["screenshot","painpoints","hierarchy","annotated","review","report"],"주석형 UX 리뷰"],
+
+  ["trip-plan","생활","여행 자료 → 일정표","모아둔 정보에서 동선과 일정만 만들기","계획","중급",["article","actions","timeline","table","plan","checklist"],"날짜별 여행 일정과 준비 체크리스트"],
+  ["shopping-compare","생활","구매 후보 비교","후보들의 조건과 근거를 표로 정리","의사결정","중급",["product","evidence","compare","table","decide","report"],"조건별 구매 비교표"],
+  ["recipe-card","생활","레시피 → 요리 카드","긴 조리법을 한눈에 보는 단계 카드로","실행","초급",["article","actions","flow","cards","apply",""],"조리 순서 카드"],
+  ["personal-notes","생활","메모 → 실행 체크리스트","복잡한 개인 메모에서 할 일만 추출","실행","초급",["notes","actions","","","apply","checklist"],"바로 실행 가능한 개인 체크리스트"]
 ].map(r=>({id:r[0],scenario:r[1],title:r[2],desc:r[3],goal:r[4],level:r[5],path:r[6],outcome:r[7]}));
+
+const VISUAL_OUTPUTS=[
+  ["mindmap","마인드맵","중앙 주제에서 핵심 개념을 가지로 확장","map"],
+  ["sketchnote","스케치노트","손글씨 느낌의 키워드·아이콘·화살표 요약","sketch"],
+  ["infographic","인포그래픽","핵심 수치·메시지를 한 장에 시각 배치","info"],
+  ["conceptmap","개념맵","개념 사이 관계와 연결어를 중심으로 표현","map"],
+  ["flowchart","플로차트","과정·조건·분기를 순서도로 표현","flow"],
+  ["timeline","타임라인","사건·단계를 시간축으로 배치","timeline"],
+  ["comparison","비교 시트","두 개 이상 대상을 기준별로 비교","compare"],
+  ["framework","프레임워크","원칙·축·단계를 하나의 모델로 표현","framework"],
+  ["onepager","원페이지","핵심 전체를 한 장 문서로 압축","onepage"],
+  ["poster","포스터","하나의 메시지를 강하게 강조","poster"],
+  ["flashcards","플래시카드","질문/답 또는 앞/뒤 카드 형태","cards"],
+  ["comic","설명 만화","복잡한 내용을 장면과 대사로 설명","comic"],
+  ["storyboard","스토리보드","장면 순서와 메시지를 연속 프레임으로","story"],
+  ["whiteboard","화이트보드","회의·브레인스토밍 보드처럼 자유롭게 배치","whiteboard"],
+  ["annotated","주석 이미지","원본 위에 번호·화살표·설명을 덧붙임","annotated"],
+  ["dashboard","대시보드","지표·상태·우선순위를 패널로 배치","dashboard"],
+  ["checklist","체크리스트 카드","실행 항목을 체크 가능한 카드로","cards"],
+  ["quotecard","인용문 카드","핵심 문장을 공유용 카드로 강조","poster"],
+  ["cheatsheet","치트시트","빠른 참고를 위한 압축 요약 시트","onepage"],
+  ["roadmap","로드맵","단계와 마일스톤을 진행 순서로 표현","timeline"],
+  ["decisiontree","의사결정 트리","조건에 따라 갈리는 선택지를 트리로","flow"],
+  ["processmap","프로세스 맵","역할·단계·입출력 관계를 시각화","flow"],
+  ["studysheet","학습 시트","정리·빈칸·핵심 포인트를 학습용으로","sketch"],
+  ["presentation","발표 한 장","발표용 핵심 메시지와 시각 구조","info"]
+];
 
 const STYLE_DATA=`
 minimalism-and-swiss-style|Minimalism & Swiss Style|active
