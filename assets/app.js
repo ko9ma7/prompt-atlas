@@ -497,6 +497,12 @@ function renderHome(){
       </div>
       ${visualWorkspace({compact:true})}
     </section>
+    <section class="wrap stats atlas-stats" aria-label="Prompt Atlas 규모">
+      <div class="stat"><b>24</b><span>이미지 결과 형식</span></div>
+      <div class="stat"><b>72</b><span>상황별 레시피</span></div>
+      <div class="stat"><b>96</b><span>조합 블록</span></div>
+      <div class="stat"><b>2,413만+</b><span>생략 포함 이론상 조합</span></div>
+    </section>
     <section class="wrap section situation-start">
       <div class="section-head"><div><div class="kicker">Situation Explorer</div><h2>${RECIPES.length}개 상황 레시피에서 시작</h2></div><p>6단계를 전부 채우는 방식만 제공하지 않습니다. 1–2단계 빠른 작업, 3–4단계 실용 조합, 5–6단계 완성형을 함께 탐색할 수 있습니다.</p></div>
       ${filters()}
