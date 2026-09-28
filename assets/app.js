@@ -481,7 +481,8 @@ function visualWorkspace({compact=false}={}){
 function renderHome(){
   const groups=[...new Set(RECIPES.map(r=>r.scenario))];
   const list=filteredRecipes();
-  const shownGroups=groups.slice(0,8);
+  const filtersActive=Boolean(state.q)||state.goal!=="all"||state.source!=="all"||state.level!=="all"||state.steps!=="all";
+  const shownGroups=filtersActive?groups:groups.slice(0,8);
   return `
     <section class="wrap image-hero">
       <div class="image-hero-copy">
@@ -510,8 +511,8 @@ function renderRecipes(){
     </section>`;
 }
 function renderPipeline(){
-  return `<section class="wrap page-head"><div class="kicker">Pipeline Map</div><h1>6단계 조합 지도</h1><p>어떤 옵션이 어느 단계에 속하는지 전체 구조를 한눈에 봅니다. 항목을 클릭하면 조합 빌더에 저장됩니다.</p></section>
-    <section class="wrap section"><div class="pipeline">${STAGES.map(s=>`<section class="stage"><h3>${s.label} · ${s.en}</h3>${BLOCKS[s.id].map(([id,name])=>`<button class="block ${state.builder[s.id]===id?"active":""}" data-block="${s.id}:${id}">${name}</button>`).join("")}</section>`).join("")}</div><div class="cta-row"><a class="btn primary" href="./builder.html">현재 선택으로 빌더 열기</a></div></section>`;
+  return `<section class="wrap page-head"><div class="kicker">Pipeline Map</div><h1>6단계 조합 지도 — 전부 쓸 필요는 없습니다</h1><p>각 열에서 필요한 단계만 선택하세요. <strong>이 단계 생략</strong>을 누르면 그 단계는 최종 프롬프트에서 빠집니다.</p></section>
+    <section class="wrap section"><div class="pipeline">${STAGES.map(s=>`<section class="stage"><h3>${s.label} · ${s.en}</h3><button class="block skip-block ${!state.builder[s.id]?"active":""}" data-block="${s.id}:">— 이 단계 생략 —</button>${BLOCKS[s.id].map(([id,name])=>`<button class="block ${state.builder[s.id]===id?"active":""}" data-block="${s.id}:${id}">${name}</button>`).join("")}</section>`).join("")}</div><div class="cta-row"><a class="btn primary" href="./builder.html">현재 선택으로 빌더 열기</a></div></section>`;
 }
 function renderMatrix(){
   const rows=BLOCKS.structure,cols=BLOCKS.visualize;
@@ -612,7 +613,7 @@ document.addEventListener("click",event=>{
   const load=event.target.closest("[data-load]");if(load){loadRecipe(load.dataset.load);return}
   const copy=event.target.closest("[data-copy]");if(copy){const r=RECIPES.find(x=>x.id===copy.dataset.copy);if(r)copyText(promptFor(r.path));return}
   const block=event.target.closest("[data-block]");if(block){const [stage,id]=block.dataset.block.split(":");state.builder[stage]=id;saveBuilder();renderPage();return}
-  const mx=event.target.closest("[data-matrix]");if(mx){const [structure,visualize]=mx.dataset.matrix.split(":");state.builder.structure=structure;state.builder.visualize=visualize;saveBuilder();location.href="./builder.html";return}
+  const mx=event.target.closest("[data-matrix]");if(mx){const [structure,visualize]=mx.dataset.matrix.split(":");state.builder={source:"",extract:"",structure,visualize,use:"",package:""};saveBuilder();location.href="./builder.html";return}
   const apply=event.target.closest("[data-apply-style]");if(apply){applyStyle(apply.dataset.applyStyle);renderPage();toast("스타일을 적용했습니다.");return}
   const visual=event.target.closest("[data-visual]");
   if(visual){
