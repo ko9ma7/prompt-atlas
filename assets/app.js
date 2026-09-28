@@ -392,9 +392,25 @@ document.addEventListener("click",event=>{
   if(event.target.id==="reset-style"){applyStyle("minimalism-and-swiss-style");renderPage();toast("기본 스타일로 돌아왔습니다.");}
 });
 
+function rerenderKeepingFocus(id,value,selectionStart){
+  renderPage();
+  requestAnimationFrame(()=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.focus();
+    const pos=Math.min(selectionStart??value.length,value.length);
+    if(typeof el.setSelectionRange==="function") el.setSelectionRange(pos,pos);
+  });
+}
 document.addEventListener("input",event=>{
-  if(event.target.id==="recipe-q"){state.q=event.target.value;renderPage()}
-  if(event.target.id==="style-q"){state.styleQ=event.target.value;renderPage()}
+  if(event.target.id==="recipe-q"){
+    state.q=event.target.value;
+    rerenderKeepingFocus("recipe-q",state.q,event.target.selectionStart);
+  }
+  if(event.target.id==="style-q"){
+    state.styleQ=event.target.value;
+    rerenderKeepingFocus("style-q",state.styleQ,event.target.selectionStart);
+  }
 });
 document.addEventListener("change",event=>{
   if(event.target.dataset.filter){state[event.target.dataset.filter]=event.target.value;renderPage();return}
